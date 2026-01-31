@@ -4,6 +4,7 @@ from ui.widgets import CodeEditor, Console
 from ui.settings_window import SettingsWindow
 from core.interpreter import Interpreter
 from core.system_info import get_processor_name
+from core.updater import CURRENT_VERSION # <--- ИМПОРТИРУЕМ ВЕРСИЮ
 from locales.manager import t
 
 
@@ -65,7 +66,7 @@ class App(ctk.CTk):
     def reload_ui(self):
         """Обновляет все тексты интерфейса при смене языка"""
         # Динамический заголовок окна
-        app_title = f"MyLang IDE ({self.cpu_name})"
+        app_title = f"MyLang IDE ({self.cpu_name}) - v{CURRENT_VERSION}"
         self.title(app_title)
 
         self.editor.set_title(t.get("editor_title"))
@@ -86,8 +87,8 @@ class App(ctk.CTk):
 
     def check_updates_bg(self):
         """Фоновая проверка обновлений"""
-        # Импорт внутри метода, чтобы избежать циклических ссылок при старте
         from core.updater import Updater
+        # Импорт внутри метода, чтобы избежать циклических ссылок при старте
 
         self.updater = Updater()
         # Проверяем версию (вернет True, если на сервере версия больше)
