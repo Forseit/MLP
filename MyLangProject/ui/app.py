@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import os
+import tkinter
 from ui.theme import Theme
 from ui.widgets import CodeEditor, Console
 from ui.settings_window import SettingsWindow
@@ -17,17 +18,12 @@ class App(ctk.CTk):
         self.geometry("1000x700")
         ctk.set_appearance_mode("Dark")
 
-        # --- БИНДЫ (ГОРЯЧИЕ КЛАВИШИ) ---
-        self.bind("<Command-d>", self.open_settings)
-        self.bind("<Command-s>", self.save_file_command)
-        self.bind("<Command-r>", self.run_program_event)  # Command+R для запуска
-
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=0)
 
-        # 1. Редактор (Передаем self.run_program для кнопки Run в меню)
+        # 1. Редактор
         self.editor = CodeEditor(self, "LOADING...", run_callback=self.run_program)
         self.editor.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
 
@@ -37,7 +33,7 @@ class App(ctk.CTk):
         self.console = Console(self, "LOADING...")
         self.console.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
 
-        # 3. Кнопка запуска
+        # 3. Кнопка
         self.run_btn = ctk.CTkButton(
             self,
             text="LOADING...",
@@ -56,6 +52,48 @@ class App(ctk.CTk):
 
         self.updater = None
         self.after(1000, self.check_updates_bg)
+
+        # --- НАСТРОЙКА ГОРЯЧИХ КЛАВИШ (РАСКЛАДКИ) ---
+        self.setup_bindings()
+
+    def setup_bindings(self):
+        """Безопасная привязка клавиш для разных раскладок"""
+
+        def safe_bind(sequence, func):
+            """Пытается забиндить клавишу, игнорирует ошибки, если раскладка недоступна"""
+            try:
+                self.bind(sequence, func)
+            except tkinter.TclError:
+                pass
+
+        # 1. Настройки (Cmd+D / Cmd+В)
+        safe_bind("<Command-d>", self.open_settings)
+        safe_bind("<Command-в>", self.open_settings)
+
+        # 2. Сохранить (Cmd+S / Cmd+Ы)
+        safe_bind("<Command-s>", self.save_file_command)
+        safe_bind("<Command-ы>", self.save_file_command)
+
+        # 3. Запуск (Cmd+R / Cmd+К)
+        safe_bind("<Command-r>", self.run_program_event)
+        safe_bind("<Command-к>", self.run_program_event)
+
+        # 4. Выделить всё (Cmd+A / Cmd+Ф) - Глобально
+        # Важно: используем bind_class, чтобы работало везде
+        try:
+            self.bind_class("Text", "<Command-a>", self.select_all)
+            self.bind_class("Text", "<Command-ф>", self.select_all)
+        except tkinter.TclError:
+            pass
+
+    def select_all(self, event):
+        """Выделяет весь текст в активном поле ввода"""
+        try:
+            # event.widget - это виджет tkinter под курсором
+            event.widget.tag_add("sel", "1.0", "end")
+            return "break"
+        except:
+            pass
 
     def load_initial_file(self):
         file_path = os.path.join(WORK_DIR, "main.mylang")
@@ -80,7 +118,6 @@ class App(ctk.CTk):
             self.console.write(f"--- {t.get('msg_save_err')}: {e} ---", is_error=True)
 
     def run_program_event(self, event=None):
-        """Обертка для запуска через шорткат"""
         self.run_program()
 
     def reload_ui(self):
