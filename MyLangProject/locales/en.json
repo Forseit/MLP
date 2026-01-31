@@ -7,14 +7,18 @@
     "unterminated_string": "Unterminated string literal",
     "expected_bracket": "Expected closing bracket ')'",
     "unknown_command": "Unknown command",
-    "settings_title": "Settings",
+    "settings_title": "IDE Settings",
     "settings_lang_label": "Interface Language",
-    "settings_btn_apply": "Apply",
-    "settings_btn_close": "Close",
-    "settings_info": "Changes apply immediately",
+    "settings_font_label": "Font Size",
+    "settings_autosave": "Auto-save on Run",
+    "settings_btn_apply": "Apply & Save",
+    "settings_btn_close": "Cancel",
+    "settings_info": "Some settings may require restart",
     "error_file": "File",
     "error_line": "line",
     "update_avail": "Update Available!",
     "update_btn": "Update",
-    "update_msg": "New version downloaded. Please restart."
+    "update_msg": "New version downloaded. Please restart.",
+    "msg_saved": "File main.mylang saved successfully!",
+    "msg_save_err": "Error saving file"
 }

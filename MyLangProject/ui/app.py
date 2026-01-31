@@ -1,43 +1,43 @@
 import customtkinter as ctk
+import os
 from ui.theme import Theme
 from ui.widgets import CodeEditor, Console
 from ui.settings_window import SettingsWindow
 from core.interpreter import Interpreter
 from core.system_info import get_processor_name
-from core.updater import CURRENT_VERSION # <--- ИМПОРТИРУЕМ ВЕРСИЮ
-from locales.manager import t
+from core.updater import CURRENT_VERSION
+from locales.manager import t, WORK_DIR  # Импортируем WORK_DIR для сохранения файла
 
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # Получаем имя процессора
         self.cpu_name = get_processor_name()
-
-        # Настройки окна
         self.geometry("1000x700")
         ctk.set_appearance_mode("Dark")
 
-        # Биндим горячую клавишу (Cmd+D для macOS)
+        # --- БИНДЫ (ГОРЯЧИЕ КЛАВИШИ) ---
         self.bind("<Command-d>", self.open_settings)
+        self.bind("<Command-s>", self.save_file_command)  # Сохранение
 
-        # Сетка: 2 колонки (редактор и консоль), 2 строки (основная и кнопка)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=0)
 
-        # 1. Левая панель (Редактор)
+        # 1. Редактор
         self.editor = CodeEditor(self, "LOADING...")
         self.editor.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
-        self.editor.set_code('текст("Привет, ' + self.cpu_name + '")\nтекст(\'Ошибка тут ->")')
 
-        # 2. Правая панель (Консоль)
+        # Пытаемся загрузить старый файл при старте
+        self.load_initial_file()
+
+        # 2. Консоль
         self.console = Console(self, "LOADING...")
         self.console.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
 
-        # 3. Кнопка запуска (Снизу)
+        # 3. Кнопка
         self.run_btn = ctk.CTkButton(
             self,
             text="LOADING...",
@@ -50,22 +50,42 @@ class App(ctk.CTk):
         )
         self.run_btn.grid(row=1, column=0, columnspan=2, padx=15, pady=(0, 15), sticky="ew")
 
-        # Инициализация интерпретатора
         self.interpreter = Interpreter(console_callback=self.console.write)
 
-        # Применяем переводы (Locale)
+        # Применяем настройки (язык, шрифт)
         self.reload_ui()
 
-        # --- СИСТЕМА ОБНОВЛЕНИЙ ---
-        # Инициализируем переменную апдейтера
         self.updater = None
-        # Проверяем обновления через 1 секунду (1000 мс) после запуска,
-        # чтобы интерфейс успел отрисоваться и не завис
         self.after(1000, self.check_updates_bg)
 
+    def load_initial_file(self):
+        """Загружает main.mylang при старте, если он есть"""
+        file_path = os.path.join(WORK_DIR, "main.mylang")
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    self.editor.set_code(f.read())
+            except:
+                pass
+        else:
+            # Дефолтный код
+            self.editor.set_code(
+                'текст("Привет, ' + self.cpu_name + '")\nтекст(\'Версия ' + str(CURRENT_VERSION) + '")')
+
+    def save_file_command(self, event=None):
+        """Сохраняет код в Documents/MyLangProject/main.mylang"""
+        code = self.editor.get_code()
+        file_path = os.path.join(WORK_DIR, "main.mylang")
+
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(code)
+            self.console.write(f"--- {t.get('msg_saved')} ---")
+        except Exception as e:
+            self.console.write(f"--- {t.get('msg_save_err')}: {e} ---", is_error=True)
+
     def reload_ui(self):
-        """Обновляет все тексты интерфейса при смене языка"""
-        # Динамический заголовок окна
+        """Обновляет интерфейс и настройки"""
         app_title = f"MyLang IDE ({self.cpu_name}) - v{CURRENT_VERSION}"
         self.title(app_title)
 
@@ -73,55 +93,43 @@ class App(ctk.CTk):
         self.console.set_title(t.get("console_title"))
         self.run_btn.configure(text=t.get("run_button"))
 
+        # Применяем размер шрифта из настроек
+        font_size = t.get_font_size()
+        self.editor.set_font_size(font_size)
+        self.console.set_font_size(font_size)
+
     def open_settings(self, event=None):
-        """Открывает модальное окно настроек"""
         SettingsWindow(self)
 
     def run_program(self):
-        """Запуск кода через интерпретатор"""
         self.console.clear()
+
+        # Если включено автосохранение
+        if t.is_autosave():
+            self.save_file_command()
+
         code = self.editor.get_code()
         self.interpreter.execute(code)
 
-    # --- МЕТОДЫ ОБНОВЛЕНИЯ ---
-
     def check_updates_bg(self):
-        """Фоновая проверка обновлений"""
         from core.updater import Updater
-        # Импорт внутри метода, чтобы избежать циклических ссылок при старте
-
         self.updater = Updater()
-        # Проверяем версию (вернет True, если на сервере версия больше)
         has_update, version = self.updater.check_for_updates()
-
         if has_update:
             self.show_update_button(version)
 
     def show_update_button(self, version):
-        """Показывает красивую зеленую кнопку в правом верхнем углу"""
         self.update_btn = ctk.CTkButton(
             self,
             text=f"{t.get('update_avail')} (v{version})",
-            fg_color="#28a745",  # Зеленый цвет успеха
+            fg_color="#28a745",
             hover_color="#218838",
-            command=self.perform_update,
-            width=150
+            command=self.perform_update
         )
-        # place позволяет разместить поверх сетки (абсолютное позиционирование)
-        # relx/rely - координаты от 0 до 1 (0.98 = правый край, 0.02 = самый верх)
         self.update_btn.place(relx=0.98, rely=0.02, anchor="ne")
 
     def perform_update(self):
-        """Скачивает и распаковывает архив"""
         if self.updater.download_update():
-            # Если успешно скачалось
-            self.update_btn.configure(
-                text=t.get("update_msg"),
-                fg_color="#6c757d",  # Серый цвет (отключено)
-                state="disabled"
-            )
-            # В реальном приложении здесь можно предложить перезагрузку:
-            # os.execl(sys.executable, sys.executable, *sys.argv)
+            self.update_btn.configure(text=t.get("update_msg"), state="disabled")
         else:
-            # Если ошибка скачивания
-            self.update_btn.configure(text="Error downloading", fg_color="#dc3545")
+            self.update_btn.configure(text="Error", fg_color="red")

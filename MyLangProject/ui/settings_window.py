@@ -7,38 +7,65 @@ class SettingsWindow(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title(t.get("settings_title"))
-        self.geometry("400x300")
+        self.geometry("400x450")  # Увеличили высоту
         self.resizable(False, False)
         self.transient(parent)
         self.grab_set()
-
-        # Фон окна
         self.configure(fg_color=Theme.BG_COLOR)
 
-        # Заголовок (Label) берется из JSON
-        self.label = ctk.CTkLabel(self, text=t.get("settings_lang_label"), font=Theme.FONT_UI)
-        self.label.pack(pady=20)
+        # --- 1. ЯЗЫК ---
+        self.lbl_lang = ctk.CTkLabel(self, text=t.get("settings_lang_label"), font=Theme.FONT_UI)
+        self.lbl_lang.pack(pady=(20, 5))
 
-        # Выбор языка (Mapping имен для человека -> код для программы)
         self.languages = {"English": "en", "Русский": "ru"}
-        # Обратный поиск текущего названия по коду
-        current_name = [k for k, v in self.languages.items() if v == t.lang_code][0]
+        current_lang_code = t.get_lang()
+        # Ищем имя по коду
+        current_name = next((k for k, v in self.languages.items() if v == current_lang_code), "English")
 
         self.lang_var = ctk.StringVar(value=current_name)
-        self.combo = ctk.CTkComboBox(
+        self.combo_lang = ctk.CTkComboBox(
             self,
             values=list(self.languages.keys()),
             variable=self.lang_var,
             state="readonly",
             width=200,
-            fg_color=Theme.EDITOR_BG,
-            button_color=Theme.ACCENT
+            fg_color=Theme.EDITOR_BG
         )
-        self.combo.pack(pady=10)
+        self.combo_lang.pack(pady=5)
 
-        # Кнопки
+        # --- 2. РАЗМЕР ШРИФТА ---
+        self.lbl_font = ctk.CTkLabel(self, text=f"{t.get('settings_font_label')}: {t.get_font_size()}",
+                                     font=Theme.FONT_UI)
+        self.lbl_font.pack(pady=(20, 5))
+
+        self.slider_font = ctk.CTkSlider(
+            self,
+            from_=10,
+            to=30,
+            number_of_steps=20,
+            width=200,
+            command=self.update_font_label
+        )
+        self.slider_font.set(t.get_font_size())
+        self.slider_font.pack(pady=5)
+
+        # --- 3. АВТОСОХРАНЕНИЕ ---
+        self.switch_autosave = ctk.CTkSwitch(
+            self,
+            text=t.get("settings_autosave"),
+            onvalue=True,
+            offvalue=False,
+            font=Theme.FONT_UI
+        )
+        if t.is_autosave():
+            self.switch_autosave.select()
+        else:
+            self.switch_autosave.deselect()
+        self.switch_autosave.pack(pady=30)
+
+        # --- КНОПКИ ---
         self.btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.btn_frame.pack(pady=30)
+        self.btn_frame.pack(side="bottom", pady=20)
 
         self.btn_save = ctk.CTkButton(
             self.btn_frame,
@@ -58,14 +85,21 @@ class SettingsWindow(ctk.CTkToplevel):
         )
         self.btn_cancel.pack(side="left", padx=10)
 
-        self.info_label = ctk.CTkLabel(self, text=t.get("settings_info"), text_color=Theme.TEXT_DIM, font=("Arial", 10))
-        self.info_label.pack(side="bottom", pady=10)
+    def update_font_label(self, value):
+        self.lbl_font.configure(text=f"{t.get('settings_font_label')}: {int(value)}")
 
     def save_and_close(self):
-        # Получаем код языка (ru/en) по выбранному имени
-        selected_name = self.lang_var.get()
-        lang_code = self.languages[selected_name]
+        lang_code = self.languages[self.lang_var.get()]
+        font_size = int(self.slider_font.get())
+        autosave = bool(self.switch_autosave.get())
 
-        t.save_config(lang_code)
+        # Сохраняем всё вместе
+        new_settings = {
+            "language": lang_code,
+            "font_size": font_size,
+            "autosave": autosave
+        }
+
+        t.save_settings(new_settings)
         self.master.reload_ui()  # Обновляем главное окно
         self.destroy()

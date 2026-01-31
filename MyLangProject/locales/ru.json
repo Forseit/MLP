@@ -7,14 +7,18 @@
     "unterminated_string": "Незакрaя строковая литера (забыли кавычку?)",
     "expected_bracket": "Ожидалась закрывающая скобка ')'",
     "unknown_command": "Неизвестная команда",
-    "settings_title": "Настройки",
+    "settings_title": "Настройки IDE",
     "settings_lang_label": "Язык интерфейса",
-    "settings_btn_apply": "Применить",
-    "settings_btn_close": "Закрыть",
-    "settings_info": "Изменения вступят в силу сразу",
+    "settings_font_label": "Размер шрифта",
+    "settings_autosave": "Авто-сохранение при запуске",
+    "settings_btn_apply": "Применить и Сохранить",
+    "settings_btn_close": "Отмена",
+    "settings_info": "Некоторые настройки требуют перезапуска",
     "error_file": "Файл",
     "error_line": "строка",
     "update_avail": "Доступно обновление!",
     "update_btn": "Обновить",
-    "update_msg": "Загружена новая версия. Перезапустите приложение."
+    "update_msg": "Загружена новая версия. Перезапустите приложение.",
+    "msg_saved": "Файл main.mylang успешно сохранен!",
+    "msg_save_err": "Ошибка сохранения файла"
 }

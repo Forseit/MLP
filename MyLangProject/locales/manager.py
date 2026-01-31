@@ -2,61 +2,70 @@ import json
 import os
 import locale
 
-# Исправление: Сохраняем конфиг в Документы пользователя,
-# так как папка приложения на macOS может быть доступна только для чтения.
 WORK_DIR = os.path.expanduser("~/Documents/MyLangProject")
 CONFIG_FILE = os.path.join(WORK_DIR, "config.json")
+
+# Настройки по умолчанию
+DEFAULT_CONFIG = {
+    "language": "en",
+    "font_size": 14,
+    "autosave": False
+}
 
 
 class LocaleManager:
     def __init__(self):
-        # Если папки в Документах нет — создаем её
         if not os.path.exists(WORK_DIR):
             try:
                 os.makedirs(WORK_DIR)
             except Exception as e:
                 print(f"Error creating config dir: {e}")
 
-        # Путь к JSON файлам переводов (остается внутри программы)
         self.base_path = os.path.dirname(os.path.abspath(__file__))
-
-        # Путь к файлу настроек (теперь в Документах)
         self.config_path = CONFIG_FILE
 
-        self.lang_code = self.load_config()
+        # Загружаем конфиг полностью
+        self.config = self.load_config()
+
         self.translations = {}
         self.load_translations()
 
     def load_config(self):
-        """Загружает язык из файла в Документах, или берет системный"""
+        """Загружает конфиг или создает дефолтный"""
         if os.path.exists(self.config_path):
             try:
                 with open(self.config_path, "r") as f:
                     data = json.load(f)
-                    return data.get("language", "en")
+                    # Объединяем с дефолтным, чтобы старые конфиги не ломали новые ключи
+                    return {**DEFAULT_CONFIG, **data}
             except:
                 pass
 
-        # Автоопределение
+        # Автоопределение языка для первого запуска
         try:
             sys_lang = locale.getdefaultlocale()[0]
-            return 'ru' if sys_lang and sys_lang.startswith('ru') else 'en'
+            detected_lang = 'ru' if sys_lang and sys_lang.startswith('ru') else 'en'
         except:
-            return 'en'
+            detected_lang = 'en'
 
-    def save_config(self, lang_code):
-        """Сохраняет выбранный язык в Документы"""
-        self.lang_code = lang_code
+        initial_config = DEFAULT_CONFIG.copy()
+        initial_config["language"] = detected_lang
+        return initial_config
+
+    def save_settings(self, new_settings):
+        """Сохраняет словарь настроек"""
+        self.config.update(new_settings)
         try:
             with open(self.config_path, "w") as f:
-                json.dump({"language": lang_code}, f)
+                json.dump(self.config, f, indent=4)
         except Exception as e:
             print(f"Error saving config: {e}")
 
-        self.load_translations()
+        self.load_translations()  # Перезагружаем язык, если он сменился
 
     def load_translations(self):
-        file_path = os.path.join(self.base_path, f"{self.lang_code}.json")
+        lang = self.config.get("language", "en")
+        file_path = os.path.join(self.base_path, f"{lang}.json")
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 self.translations = json.load(f)
@@ -65,6 +74,16 @@ class LocaleManager:
 
     def get(self, key):
         return self.translations.get(key, key)
+
+    # Хелперы для доступа к настройкам
+    def get_font_size(self):
+        return self.config.get("font_size", 14)
+
+    def get_lang(self):
+        return self.config.get("language", "en")
+
+    def is_autosave(self):
+        return self.config.get("autosave", False)
 
 
 t = LocaleManager()
