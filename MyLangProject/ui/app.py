@@ -6,7 +6,7 @@ from ui.settings_window import SettingsWindow
 from core.interpreter import Interpreter
 from core.system_info import get_processor_name
 from core.updater import CURRENT_VERSION
-from locales.manager import t, WORK_DIR  # Импортируем WORK_DIR для сохранения файла
+from locales.manager import t, WORK_DIR
 
 
 class App(ctk.CTk):
@@ -19,25 +19,25 @@ class App(ctk.CTk):
 
         # --- БИНДЫ (ГОРЯЧИЕ КЛАВИШИ) ---
         self.bind("<Command-d>", self.open_settings)
-        self.bind("<Command-s>", self.save_file_command)  # Сохранение
+        self.bind("<Command-s>", self.save_file_command)
+        self.bind("<Command-r>", self.run_program_event)  # Command+R для запуска
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=0)
 
-        # 1. Редактор
-        self.editor = CodeEditor(self, "LOADING...")
+        # 1. Редактор (Передаем self.run_program для кнопки Run в меню)
+        self.editor = CodeEditor(self, "LOADING...", run_callback=self.run_program)
         self.editor.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
 
-        # Пытаемся загрузить старый файл при старте
         self.load_initial_file()
 
         # 2. Консоль
         self.console = Console(self, "LOADING...")
         self.console.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
 
-        # 3. Кнопка
+        # 3. Кнопка запуска
         self.run_btn = ctk.CTkButton(
             self,
             text="LOADING...",
@@ -52,14 +52,12 @@ class App(ctk.CTk):
 
         self.interpreter = Interpreter(console_callback=self.console.write)
 
-        # Применяем настройки (язык, шрифт)
         self.reload_ui()
 
         self.updater = None
         self.after(1000, self.check_updates_bg)
 
     def load_initial_file(self):
-        """Загружает main.mylang при старте, если он есть"""
         file_path = os.path.join(WORK_DIR, "main.mylang")
         if os.path.exists(file_path):
             try:
@@ -68,15 +66,12 @@ class App(ctk.CTk):
             except:
                 pass
         else:
-            # Дефолтный код
             self.editor.set_code(
                 'текст("Привет, ' + self.cpu_name + '")\nтекст(\'Версия ' + str(CURRENT_VERSION) + '")')
 
     def save_file_command(self, event=None):
-        """Сохраняет код в Documents/MyLangProject/main.mylang"""
         code = self.editor.get_code()
         file_path = os.path.join(WORK_DIR, "main.mylang")
-
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(code)
@@ -84,8 +79,11 @@ class App(ctk.CTk):
         except Exception as e:
             self.console.write(f"--- {t.get('msg_save_err')}: {e} ---", is_error=True)
 
+    def run_program_event(self, event=None):
+        """Обертка для запуска через шорткат"""
+        self.run_program()
+
     def reload_ui(self):
-        """Обновляет интерфейс и настройки"""
         app_title = f"MyLang IDE ({self.cpu_name}) - v{CURRENT_VERSION}"
         self.title(app_title)
 
@@ -93,7 +91,6 @@ class App(ctk.CTk):
         self.console.set_title(t.get("console_title"))
         self.run_btn.configure(text=t.get("run_button"))
 
-        # Применяем размер шрифта из настроек
         font_size = t.get_font_size()
         self.editor.set_font_size(font_size)
         self.console.set_font_size(font_size)
@@ -104,7 +101,6 @@ class App(ctk.CTk):
     def run_program(self):
         self.console.clear()
 
-        # Если включено автосохранение
         if t.is_autosave():
             self.save_file_command()
 

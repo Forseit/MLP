@@ -1,27 +1,22 @@
-# ui/theme.py
 class Theme:
     # --- ОСНОВНЫЕ ЦВЕТА ---
-    BG_COLOR = "#191919"  # Очень темный серый, почти черный (Deep Dark)
-    FG_COLOR = "#252526"  # Цвет панелей
-    ACCENT = "#0A84FF"  # macOS Blue
+    BG_COLOR = "#191919"
+    FG_COLOR = "#252526"
+    ACCENT = "#0A84FF"
     ACCENT_HOVER = "#007AFF"
 
     # --- ТЕКСТ ---
     TEXT_MAIN = "#FFFFFF"
-    TEXT_DIM = "#808080"  # Для подписей
+    TEXT_DIM = "#808080"
 
     # --- РЕДАКТОР ---
-    EDITOR_BG = "#1E1E1E"  # Классический цвет VS Code
-    EDITOR_FG = "#D4D4D4"  # Светло-серый код
+    EDITOR_BG = "#1E1E1E"
+    EDITOR_FG = "#D4D4D4"
 
     # --- КОНСОЛЬ (ВЫВОД) ---
-    CONSOLE_BG = "#121212"  # Глубокий черный
-
-    # Тот самый "кайфовый серый" для успешного вывода
-    # Это цвет "Cool Gray", он читаемый, но не режет глаза как белый
+    CONSOLE_BG = "#121212"
     CONSOLE_TEXT_NORMAL = "#A8A8B6"
-
-    CONSOLE_TEXT_ERROR = "#FF453A"  # Мягкий красный (macOS style)
+    CONSOLE_TEXT_ERROR = "#FF453A"
 
     # --- ШРИФТЫ ---
     FONT_CODE = ("Menlo", 14)

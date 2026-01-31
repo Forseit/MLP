@@ -20,5 +20,9 @@
     "update_btn": "Update",
     "update_msg": "New version downloaded. Please restart.",
     "msg_saved": "File main.mylang saved successfully!",
-    "msg_save_err": "Error saving file"
+    "msg_save_err": "Error saving file",
+    "ctx_copy": "Copy",
+    "ctx_paste": "Paste",
+    "ctx_cut": "Cut",
+    "ctx_run": "Run"
 }

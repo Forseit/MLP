@@ -6,7 +6,7 @@ import zipfile  # <--- Добавили библиотеку для работы
 
 # Путь, куда падают обновления
 UPDATE_DIR = os.path.expanduser("~/Documents/MyLangUpdates")
-CURRENT_VERSION = 4.0
+CURRENT_VERSION = 5.0
 
 
 class Updater:
