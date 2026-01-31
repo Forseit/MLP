@@ -1,0 +1,20 @@
+{
+    "window_title": "MyLang IDE",
+    "editor_title": "РЕДАКТОР КОДА",
+    "console_title": "ТЕРМИНАЛ / ВЫВОД",
+    "run_button": "▶ ЗАПУСТИТЬ КОД",
+    "syntax_error": "Синтаксическая ошибка",
+    "unterminated_string": "Незакрaя строковая литера (забыли кавычку?)",
+    "expected_bracket": "Ожидалась закрывающая скобка ')'",
+    "unknown_command": "Неизвестная команда",
+    "settings_title": "Настройки",
+    "settings_lang_label": "Язык интерфейса",
+    "settings_btn_apply": "Применить",
+    "settings_btn_close": "Закрыть",
+    "settings_info": "Изменения вступят в силу сразу",
+    "error_file": "Файл",
+    "error_line": "строка",
+    "update_avail": "Доступно обновление!",
+    "update_btn": "Обновить",
+    "update_msg": "Загружена новая версия. Перезапустите приложение."
+}

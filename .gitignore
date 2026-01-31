@@ -1,0 +1,20 @@
+# Игнорируем виртуальное окружение
+venv/
+.env
+
+# Игнорируем временные файлы Python
+__pycache__/
+*.py[cod]
+
+# Игнорируем настройки macOS
+.DS_Store
+
+# Игнорируем настройки IDE (если пользуешься PyCharm или VS Code)
+.idea/
+.vscode/
+
+# Игнорируем папки сборки (мы их создаем сами через create-dmg)
+build/
+dist/
+Installer/
+*.spec

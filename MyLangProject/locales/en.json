@@ -1,0 +1,20 @@
+{
+    "window_title": "MyLang IDE",
+    "editor_title": "CODE EDITOR",
+    "console_title": "TERMINAL / OUTPUT",
+    "run_button": "▶ RUN CODE",
+    "syntax_error": "Syntax Error",
+    "unterminated_string": "Unterminated string literal",
+    "expected_bracket": "Expected closing bracket ')'",
+    "unknown_command": "Unknown command",
+    "settings_title": "Settings",
+    "settings_lang_label": "Interface Language",
+    "settings_btn_apply": "Apply",
+    "settings_btn_close": "Close",
+    "settings_info": "Changes apply immediately",
+    "error_file": "File",
+    "error_line": "line",
+    "update_avail": "Update Available!",
+    "update_btn": "Update",
+    "update_msg": "New version downloaded. Please restart."
+}
