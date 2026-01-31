@@ -1,23 +1,34 @@
-# locales/manager.py
 import json
 import os
 import locale
 
-CONFIG_FILE = "config.json"
+# Исправление: Сохраняем конфиг в Документы пользователя,
+# так как папка приложения на macOS может быть доступна только для чтения.
+WORK_DIR = os.path.expanduser("~/Documents/MyLangProject")
+CONFIG_FILE = os.path.join(WORK_DIR, "config.json")
 
 
 class LocaleManager:
     def __init__(self):
+        # Если папки в Документах нет — создаем её
+        if not os.path.exists(WORK_DIR):
+            try:
+                os.makedirs(WORK_DIR)
+            except Exception as e:
+                print(f"Error creating config dir: {e}")
+
+        # Путь к JSON файлам переводов (остается внутри программы)
         self.base_path = os.path.dirname(os.path.abspath(__file__))
-        self.root_path = os.path.dirname(self.base_path)  # Папка проекта
-        self.config_path = os.path.join(self.root_path, CONFIG_FILE)
+
+        # Путь к файлу настроек (теперь в Документах)
+        self.config_path = CONFIG_FILE
 
         self.lang_code = self.load_config()
         self.translations = {}
         self.load_translations()
 
     def load_config(self):
-        """Загружает язык из файла, или берет системный"""
+        """Загружает язык из файла в Документах, или берет системный"""
         if os.path.exists(self.config_path):
             try:
                 with open(self.config_path, "r") as f:
@@ -27,14 +38,21 @@ class LocaleManager:
                 pass
 
         # Автоопределение
-        sys_lang = locale.getdefaultlocale()[0]
-        return 'ru' if sys_lang and sys_lang.startswith('ru') else 'en'
+        try:
+            sys_lang = locale.getdefaultlocale()[0]
+            return 'ru' if sys_lang and sys_lang.startswith('ru') else 'en'
+        except:
+            return 'en'
 
     def save_config(self, lang_code):
-        """Сохраняет выбранный язык"""
+        """Сохраняет выбранный язык в Документы"""
         self.lang_code = lang_code
-        with open(self.config_path, "w") as f:
-            json.dump({"language": lang_code}, f)
+        try:
+            with open(self.config_path, "w") as f:
+                json.dump({"language": lang_code}, f)
+        except Exception as e:
+            print(f"Error saving config: {e}")
+
         self.load_translations()
 
     def load_translations(self):
