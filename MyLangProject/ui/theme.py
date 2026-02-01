@@ -1,30 +1,22 @@
 class Theme:
-    # --- ОСНОВНЫЕ ЦВЕТА (VS Code Dark Style) ---
-    BG_COLOR = "#1e1e1e"  # Основной фон окна
-    FG_COLOR = "#252526"  # Фон панелей (чуть светлее)
+    # VS Code Dark Style
+    BG_COLOR = "#1e1e1e"
+    FG_COLOR = "#252526"
+    ACCENT = "#007acc"
+    ACCENT_HOVER = "#005a9e"
 
-    # --- АКЦЕНТЫ ---
-    ACCENT = "#007acc"  # Фирменный синий
-    ACCENT_HOVER = "#005a9e"  # При наведении
+    TEXT_MAIN = "#cccccc"
+    TEXT_DIM = "#858585"
 
-    # --- ТЕКСТ ---
-    TEXT_MAIN = "#d4d4d4"  # Основной текст (не чисто белый)
-    TEXT_DIM = "#858585"  # Тусклый текст (заголовки)
+    EDITOR_BG = "#1e1e1e"
+    EDITOR_FG = "#d4d4d4"
+    EDITOR_BORDER = "#3e3e42"
 
-    # --- РЕДАКТОР ---
-    EDITOR_BG = "#1e1e1e"  # Такой же как фон, чтобы сливался
-    EDITOR_FG = "#d4d4d4"  # Светло-серый текст кода
-    EDITOR_BORDER = "#3e3e42"  # Тонкая рамка
-
-    # --- КОНСОЛЬ (ВЫВОД) ---
-    CONSOLE_BG = "#121212"  # Почти черный для контраста
+    CONSOLE_BG = "#1e1e1e"
     CONSOLE_TEXT_NORMAL = "#cccccc"
-    CONSOLE_TEXT_ERROR = "#f48771"  # Мягкий красный
-    CONSOLE_TEXT_SUCCESS = "#89d185"  # Мягкий зеленый
+    CONSOLE_TEXT_ERROR = "#f14c4c"
+    CONSOLE_TEXT_SUCCESS = "#4caf50"
 
-    # --- ШРИФТЫ ---
-    # Пробуем найти хороший моноширинный шрифт
-    FONT_CODE = ("Menlo", 14)  # Mac
-    # Если на Windows, можно поменять на Consolas
-
-    FONT_UI = ("Segoe UI", 12, "bold")  # Системный шрифт интерфейса
+    FONT_CODE = ("Menlo", 14)
+    FONT_UI = ("Segoe UI", 13)
+    FONT_HEADER = ("Segoe UI", 20, "bold")

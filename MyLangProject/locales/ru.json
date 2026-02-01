@@ -1,34 +1,63 @@
 {
-    "window_title": "MyLang IDE",
-    "editor_title": "РЕДАКТОР КОДА",
+    "app_name": "MyLang IDE",
+    "loading": "Загрузка компонентов...",
+    "auth_login_title": "Вход в аккаунт",
+    "auth_reg_title": "Регистрация",
+    "auth_username": "Имя пользователя",
+    "auth_password": "Пароль",
+    "auth_btn_login": "Войти",
+    "auth_btn_reg": "Создать аккаунт",
+    "auth_link_reg": "Нет аккаунта? Зарегистрироваться",
+    "auth_link_login": "Уже есть аккаунт? Войти",
+    "auth_err_fields": "Заполните все поля",
+    "auth_err_exists": "Пользователь уже существует",
+    "auth_err_invalid": "Неверное имя или пароль",
+    "auth_success_reg": "Аккаунт создан! Теперь войдите.",
+
+    "welcome_title": "Добро пожаловать в MyLang",
+    "welcome_new_proj": "Новый проект",
+    "welcome_open_file": "Открыть файл",
+    "welcome_settings": "Настройки",
+    "welcome_recent": "Недавние",
+    "welcome_version": "Версия",
+
+    "editor_title": "РЕДАКТОР",
     "console_title": "ТЕРМИНАЛ",
     "run_button": "▶ ЗАПУСТИТЬ",
+
     "syntax_error": "Синтаксическая ошибка",
-    "unterminated_string": "Незакрытая строка (забыли кавычку?)",
+    "unterminated_string": "Незакрытая строка (нет закрывающей кавычки)",
     "expected_bracket": "Ожидалась закрывающая скобка ')'",
     "unknown_command": "Неизвестная команда",
+
     "settings_title": "Настройки",
     "settings_lang_label": "Язык",
     "settings_font_label": "Размер шрифта",
     "settings_autosave": "Авто-сохранение",
     "settings_btn_apply": "Сохранить",
-    "settings_btn_close": "Отмена",
-    "settings_info": "Для смены языка нужен перезапуск",
+    "settings_btn_close": "Закрыть",
+
     "error_file": "Файл",
     "error_line": "строка",
+
     "update_avail": "Доступно обновление",
     "update_btn": "Обновить",
     "update_msg": "Обновлено. Перезапустите.",
     "msg_saved": "Файл сохранен",
     "msg_save_err": "Ошибка сохранения",
+
     "ctx_copy": "Копировать",
     "ctx_paste": "Вставить",
     "ctx_cut": "Вырезать",
     "ctx_run": "Выполнить",
+
     "dlg_update_title": "Обновление",
     "dlg_update_header": "Новая версия",
     "dlg_update_text": "Версия {version} готова.\nОбновить сейчас?",
-    "dlg_update_auto": "Запомнить выбор (Авто-обновление)",
-    "dlg_btn_update": "Да, обновить",
-    "dlg_btn_cancel": "Позже"
+    "dlg_update_auto": "Авто-обновление",
+    "dlg_btn_update": "Да",
+    "dlg_btn_cancel": "Нет",
+
+    "proj_name_title": "Имя проекта",
+    "proj_create_btn": "Создать"
 }
