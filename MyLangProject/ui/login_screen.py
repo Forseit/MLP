@@ -11,6 +11,10 @@ class LoginScreen(ctk.CTkFrame):
         self.auth = AuthManager()
         self.is_register_mode = False
 
+        # --- ВАЖНОЕ ИСПРАВЛЕНИЕ: Показываем этот экран ---
+        self.pack(fill="both", expand=True)
+        # ------------------------------------------------
+
         self.center_frame = ctk.CTkFrame(self, fg_color=Theme.FG_COLOR, corner_radius=15)
         self.center_frame.place(relx=0.5, rely=0.5, anchor="center")
 
