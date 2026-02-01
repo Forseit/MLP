@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import os
+import sys
 import tkinter
 from ui.theme import Theme
 from ui.widgets import CodeEditor, Console
@@ -10,90 +11,112 @@ from core.updater import CURRENT_VERSION
 from locales.manager import t, WORK_DIR
 
 
+def restart_application():
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+
+
+class UpdateDialog(ctk.CTkToplevel):
+    def __init__(self, parent, version, update_callback):
+        super().__init__(parent)
+        self.update_callback = update_callback
+        self.title(t.get("dlg_update_title"))
+        self.geometry("400x250")
+        self.resizable(False, False)
+        self.transient(parent)
+        self.grab_set()
+        self.configure(fg_color=Theme.BG_COLOR)
+
+        self.lbl_header = ctk.CTkLabel(self, text=t.get("dlg_update_header"), font=("Segoe UI", 18, "bold"),
+                                       text_color=Theme.TEXT_MAIN)
+        self.lbl_header.pack(pady=(20, 10))
+
+        msg = t.get("dlg_update_text", version=version)
+        self.lbl_text = ctk.CTkLabel(self, text=msg, font=("Segoe UI", 13), text_color=Theme.TEXT_DIM, justify="center")
+        self.lbl_text.pack(pady=5)
+
+        self.chk_auto = ctk.CTkCheckBox(self, text=t.get("dlg_update_auto"), font=("Segoe UI", 12),
+                                        text_color=Theme.TEXT_MAIN, fg_color=Theme.ACCENT)
+        self.chk_auto.pack(pady=15)
+
+        self.btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.btn_frame.pack(fill="x", padx=20, pady=10)
+
+        self.btn_cancel = ctk.CTkButton(self.btn_frame, text=t.get("dlg_btn_cancel"), fg_color="transparent",
+                                        border_width=1, border_color=Theme.TEXT_DIM, command=self.destroy, width=100)
+        self.btn_cancel.pack(side="left", padx=(0, 10), expand=True)
+
+        self.btn_update = ctk.CTkButton(self.btn_frame, text=t.get("dlg_btn_update"), fg_color=Theme.ACCENT,
+                                        hover_color=Theme.ACCENT_HOVER, command=self.on_update, width=100)
+        self.btn_update.pack(side="right", padx=(10, 0), expand=True)
+
+    def on_update(self):
+        if self.chk_auto.get() == 1:
+            t.save_settings({"auto_restart": True})
+        self.destroy()
+        self.update_callback()
+
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-
         self.cpu_name = get_processor_name()
-        self.geometry("1000x700")
+        self.geometry("1100x750")  # Чуть шире по умолчанию
+        self.title("MyLang IDE")
         ctk.set_appearance_mode("Dark")
+        self.configure(fg_color=Theme.BG_COLOR)  # Применяем цвет фона из темы
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=0)
 
-        # 1. Редактор
-        self.editor = CodeEditor(self, "LOADING...", run_callback=self.run_program)
-        self.editor.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
+        # Отступы для "воздуха" в дизайне
+        PAD_X = 20
+        PAD_Y = 20
 
+        # 1. Редактор
+        self.editor = CodeEditor(self, "EDITOR", run_callback=self.run_program)
+        self.editor.grid(row=0, column=0, padx=(PAD_X, 10), pady=PAD_Y, sticky="nsew")
         self.load_initial_file()
 
         # 2. Консоль
-        self.console = Console(self, "LOADING...")
-        self.console.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
+        self.console = Console(self, "TERMINAL")
+        self.console.grid(row=0, column=1, padx=(10, PAD_X), pady=PAD_Y, sticky="nsew")
 
-        # 3. Кнопка
+        # 3. Кнопка запуска (БОЛЬШАЯ и красивая)
         self.run_btn = ctk.CTkButton(
             self,
-            text="LOADING...",
+            text="RUN",
             command=self.run_program,
-            height=50,
+            height=45,
             fg_color=Theme.ACCENT,
             hover_color=Theme.ACCENT_HOVER,
             font=Theme.FONT_UI,
-            corner_radius=12
+            corner_radius=8
         )
-        self.run_btn.grid(row=1, column=0, columnspan=2, padx=15, pady=(0, 15), sticky="ew")
+        self.run_btn.grid(row=1, column=0, columnspan=2, padx=PAD_X, pady=(0, PAD_Y), sticky="ew")
 
         self.interpreter = Interpreter(console_callback=self.console.write)
-
         self.reload_ui()
 
         self.updater = None
         self.after(1000, self.check_updates_bg)
-
-        # --- НАСТРОЙКА ГОРЯЧИХ КЛАВИШ (РАСКЛАДКИ) ---
         self.setup_bindings()
 
     def setup_bindings(self):
-        """Безопасная привязка клавиш для разных раскладок"""
-
         def safe_bind(sequence, func):
-            """Пытается забиндить клавишу, игнорирует ошибки, если раскладка недоступна"""
             try:
                 self.bind(sequence, func)
             except tkinter.TclError:
                 pass
 
-        # 1. Настройки (Cmd+D / Cmd+В)
-        safe_bind("<Command-d>", self.open_settings)
-        safe_bind("<Command-в>", self.open_settings)
-
-        # 2. Сохранить (Cmd+S / Cmd+Ы)
         safe_bind("<Command-s>", self.save_file_command)
         safe_bind("<Command-ы>", self.save_file_command)
-
-        # 3. Запуск (Cmd+R / Cmd+К)
+        safe_bind("<Command-d>", self.open_settings)
+        safe_bind("<Command-в>", self.open_settings)
         safe_bind("<Command-r>", self.run_program_event)
         safe_bind("<Command-к>", self.run_program_event)
-
-        # 4. Выделить всё (Cmd+A / Cmd+Ф) - Глобально
-        # Важно: используем bind_class, чтобы работало везде
-        try:
-            self.bind_class("Text", "<Command-a>", self.select_all)
-            self.bind_class("Text", "<Command-ф>", self.select_all)
-        except tkinter.TclError:
-            pass
-
-    def select_all(self, event):
-        """Выделяет весь текст в активном поле ввода"""
-        try:
-            # event.widget - это виджет tkinter под курсором
-            event.widget.tag_add("sel", "1.0", "end")
-            return "break"
-        except:
-            pass
 
     def load_initial_file(self):
         file_path = os.path.join(WORK_DIR, "main.mylang")
@@ -113,7 +136,7 @@ class App(ctk.CTk):
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(code)
-            self.console.write(f"--- {t.get('msg_saved')} ---")
+            self.console.write(f"--- {t.get('msg_saved')} ---", is_error=False)
         except Exception as e:
             self.console.write(f"--- {t.get('msg_save_err')}: {e} ---", is_error=True)
 
@@ -123,11 +146,9 @@ class App(ctk.CTk):
     def reload_ui(self):
         app_title = f"MyLang IDE ({self.cpu_name}) - v{CURRENT_VERSION}"
         self.title(app_title)
-
         self.editor.set_title(t.get("editor_title"))
         self.console.set_title(t.get("console_title"))
         self.run_btn.configure(text=t.get("run_button"))
-
         font_size = t.get_font_size()
         self.editor.set_font_size(font_size)
         self.console.set_font_size(font_size)
@@ -137,10 +158,7 @@ class App(ctk.CTk):
 
     def run_program(self):
         self.console.clear()
-
-        if t.is_autosave():
-            self.save_file_command()
-
+        if t.is_autosave(): self.save_file_command()
         code = self.editor.get_code()
         self.interpreter.execute(code)
 
@@ -149,20 +167,31 @@ class App(ctk.CTk):
         self.updater = Updater()
         has_update, version = self.updater.check_for_updates()
         if has_update:
-            self.show_update_button(version)
+            if t.is_auto_restart():
+                self.perform_update(restart=True)
+            else:
+                self.new_version = version
+                self.show_update_button(version)
 
     def show_update_button(self, version):
         self.update_btn = ctk.CTkButton(
             self,
             text=f"{t.get('update_avail')} (v{version})",
-            fg_color="#28a745",
-            hover_color="#218838",
-            command=self.perform_update
+            fg_color=Theme.CONSOLE_TEXT_SUCCESS,
+            hover_color="#63a35c",
+            text_color="black",
+            command=self.open_update_dialog
         )
         self.update_btn.place(relx=0.98, rely=0.02, anchor="ne")
 
-    def perform_update(self):
+    def open_update_dialog(self):
+        UpdateDialog(self, self.new_version, lambda: self.perform_update(restart=True))
+
+    def perform_update(self, restart=False):
         if self.updater.download_update():
-            self.update_btn.configure(text=t.get("update_msg"), state="disabled")
+            if restart:
+                restart_application()
+            else:
+                self.update_btn.configure(text=t.get("update_msg"), state="disabled")
         else:
-            self.update_btn.configure(text="Error", fg_color="red")
+            if self.update_btn: self.update_btn.configure(text="Error", fg_color="red")

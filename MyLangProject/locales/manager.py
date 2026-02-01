@@ -9,7 +9,8 @@ CONFIG_FILE = os.path.join(WORK_DIR, "config.json")
 DEFAULT_CONFIG = {
     "language": "en",
     "font_size": 14,
-    "autosave": False
+    "autosave": False,
+    "auto_restart": False  # <--- НОВАЯ НАСТРОЙКА
 }
 
 
@@ -24,24 +25,19 @@ class LocaleManager:
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.config_path = CONFIG_FILE
 
-        # Загружаем конфиг полностью
         self.config = self.load_config()
-
         self.translations = {}
         self.load_translations()
 
     def load_config(self):
-        """Загружает конфиг или создает дефолтный"""
         if os.path.exists(self.config_path):
             try:
                 with open(self.config_path, "r") as f:
                     data = json.load(f)
-                    # Объединяем с дефолтным, чтобы старые конфиги не ломали новые ключи
                     return {**DEFAULT_CONFIG, **data}
             except:
                 pass
 
-        # Автоопределение языка для первого запуска
         try:
             sys_lang = locale.getdefaultlocale()[0]
             detected_lang = 'ru' if sys_lang and sys_lang.startswith('ru') else 'en'
@@ -53,7 +49,6 @@ class LocaleManager:
         return initial_config
 
     def save_settings(self, new_settings):
-        """Сохраняет словарь настроек"""
         self.config.update(new_settings)
         try:
             with open(self.config_path, "w") as f:
@@ -61,7 +56,7 @@ class LocaleManager:
         except Exception as e:
             print(f"Error saving config: {e}")
 
-        self.load_translations()  # Перезагружаем язык, если он сменился
+        self.load_translations()
 
     def load_translations(self):
         lang = self.config.get("language", "en")
@@ -72,10 +67,16 @@ class LocaleManager:
         except FileNotFoundError:
             self.translations = {}
 
-    def get(self, key):
-        return self.translations.get(key, key)
+    def get(self, key, **kwargs):
+        text = self.translations.get(key, key)
+        if kwargs:
+            try:
+                return text.format(**kwargs)
+            except:
+                return text
+        return text
 
-    # Хелперы для доступа к настройкам
+    # Хелперы
     def get_font_size(self):
         return self.config.get("font_size", 14)
 
@@ -84,6 +85,9 @@ class LocaleManager:
 
     def is_autosave(self):
         return self.config.get("autosave", False)
+
+    def is_auto_restart(self):
+        return self.config.get("auto_restart", False)  # <--- ГЕТТЕР
 
 
 t = LocaleManager()

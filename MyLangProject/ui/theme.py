@@ -1,23 +1,30 @@
 class Theme:
-    # --- ОСНОВНЫЕ ЦВЕТА ---
-    BG_COLOR = "#191919"
-    FG_COLOR = "#252526"
-    ACCENT = "#0A84FF"
-    ACCENT_HOVER = "#007AFF"
+    # --- ОСНОВНЫЕ ЦВЕТА (VS Code Dark Style) ---
+    BG_COLOR = "#1e1e1e"  # Основной фон окна
+    FG_COLOR = "#252526"  # Фон панелей (чуть светлее)
+
+    # --- АКЦЕНТЫ ---
+    ACCENT = "#007acc"  # Фирменный синий
+    ACCENT_HOVER = "#005a9e"  # При наведении
 
     # --- ТЕКСТ ---
-    TEXT_MAIN = "#FFFFFF"
-    TEXT_DIM = "#808080"
+    TEXT_MAIN = "#d4d4d4"  # Основной текст (не чисто белый)
+    TEXT_DIM = "#858585"  # Тусклый текст (заголовки)
 
     # --- РЕДАКТОР ---
-    EDITOR_BG = "#1E1E1E"
-    EDITOR_FG = "#D4D4D4"
+    EDITOR_BG = "#1e1e1e"  # Такой же как фон, чтобы сливался
+    EDITOR_FG = "#d4d4d4"  # Светло-серый текст кода
+    EDITOR_BORDER = "#3e3e42"  # Тонкая рамка
 
     # --- КОНСОЛЬ (ВЫВОД) ---
-    CONSOLE_BG = "#121212"
-    CONSOLE_TEXT_NORMAL = "#A8A8B6"
-    CONSOLE_TEXT_ERROR = "#FF453A"
+    CONSOLE_BG = "#121212"  # Почти черный для контраста
+    CONSOLE_TEXT_NORMAL = "#cccccc"
+    CONSOLE_TEXT_ERROR = "#f48771"  # Мягкий красный
+    CONSOLE_TEXT_SUCCESS = "#89d185"  # Мягкий зеленый
 
     # --- ШРИФТЫ ---
-    FONT_CODE = ("Menlo", 14)
-    FONT_UI = ("SF Pro Text", 13, "bold")
+    # Пробуем найти хороший моноширинный шрифт
+    FONT_CODE = ("Menlo", 14)  # Mac
+    # Если на Windows, можно поменять на Consolas
+
+    FONT_UI = ("Segoe UI", 12, "bold")  # Системный шрифт интерфейса

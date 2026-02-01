@@ -24,5 +24,12 @@
     "ctx_copy": "Copy",
     "ctx_paste": "Paste",
     "ctx_cut": "Cut",
-    "ctx_run": "Run"
+    "ctx_run": "Run",
+
+    "dlg_update_title": "Software Update",
+    "dlg_update_header": "New Version Available",
+    "dlg_update_text": "Version {version} is ready to install.\nDo you want to update and restart now?",
+    "dlg_update_auto": "Remember choice (Auto-restart)",
+    "dlg_btn_update": "Update Now",
+    "dlg_btn_cancel": "Later"
 }
